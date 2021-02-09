@@ -23,6 +23,12 @@ export default {
           title: '地图'
         },
         {
+          type: 'location-map',
+          field: 'latLng2',
+          // value: '31.937739751899553, 118.82612949739269',
+          title: '地图'
+        },
+        {
           type: 'input',
           field: 'goods_name',
           col: {

@@ -4,9 +4,8 @@
       <xl-form :inline="true">
         <xl-form-item>
           <input
-            class="el-input__inner input-map"
+            class="el-input__inner input-map container-inner-place"
             type="text"
-            id="container-inner-place"
           />
         </xl-form-item>
         <xl-form-item label="纬度">
@@ -20,7 +19,7 @@
         </xl-form-item>
       </xl-form>
     </div>
-    <div id="container-inner-map"></div>
+    <div class="container-inner-map"></div>
   </div>
 </template>
 
@@ -48,7 +47,7 @@ export default {
   methods: {
     initMap () {
       const map = new window.qq.maps.Map(
-        document.getElementById('container-inner-map'),
+        this.$el.querySelector('.container-inner-map'),
         {
           center: new window.qq.maps.LatLng(this.lat, this.lng),
           zoom: 13
@@ -56,7 +55,7 @@ export default {
       )
       // 实例化自动完成
       const ap = new window.qq.maps.place.Autocomplete(
-        document.getElementById('container-inner-place')
+        this.$el.querySelector('.container-inner-place')
       )
       let keyword = ''
       // 调用Poi检索类。用于进行本地检索、周边检索等服务。
@@ -94,28 +93,28 @@ export default {
         this.$emit('input', this.latLng)
       })
     },
-    searchLocation () {
-      function jsonp (url, callback) {
-        var callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random())
-        window[callbackName] = function (data) {
-          delete window[callbackName]
-          document.body.removeChild(script)
-          callback(data)
-        }
-
-        var script = document.createElement('script')
-        script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName
-        document.body.appendChild(script)
+    jsonp (url, callback) {
+      var callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random())
+      window[callbackName] = function (data) {
+        delete window[callbackName]
+        document.body.removeChild(script)
+        callback(data)
       }
-      jsonp(this.url, (data) => {
+
+      var script = document.createElement('script')
+      script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName
+      document.body.appendChild(script)
+    },
+    searchLocation () {
+      this.jsonp(this.url, (data) => {
         this.positionLocal = data.result?.address
       })
     }
   },
   data () {
     return {
-      lat: '', // 纬度
-      lng: '', // 经度
+      lat: '31.937739751899553', // 纬度
+      lng: '118.82612949739269', // 经度
       positionLocal: '暂无地址'
     }
   },
@@ -128,8 +127,8 @@ export default {
         //   纬度,精度
         if (val) {
           const tempArr = val.split(',')
-          this.lat = tempArr[0] || ''
-          this.lng = tempArr[1] || ''
+          this.lat = tempArr[0] || '31.937739751899553'
+          this.lng = tempArr[1] || '118.82612949739269'
         }
       },
       immediate: true
@@ -139,7 +138,7 @@ export default {
 </script>
 
 <style scoped>
-#container-inner-map {
+.container-inner-map {
   width: 800px;
   height: 400px;
 }

@@ -1,230 +1,51 @@
 <template>
   <div id="app">
     <div id="app1">
-      <form-create v-model="fApi" :rule="rule" :option="option"></form-create>
+      <form-create v-model="fApi" :rule="rule" :option="option" v-if="canShowForm"></form-create>
        <xl-button type="primary" plain @click="submit">提交</xl-button>
-        <xl-button aligen="center" plain @click="reset">重置</xl-button>
+      <xl-button aligen="center" plain @click="reset">重置</xl-button>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   data () {
     return {
+      canShowForm: false,
       // 实例对象
       fApi: {},
       // 表单生成规则
-      rule: [
-        {
-          type: 'location-map',
-          field: 'latLng',
-          value: '31.937739751899553, 118.82612949739269',
-          title: '地图'
-        },
-        {
-          type: 'location-map',
-          field: 'latLng2',
-          // value: '31.937739751899553, 118.82612949739269',
-          title: '地图'
-        },
-        {
-          type: 'input',
-          field: 'goods_name',
-          col: {
-            span: 8
-          },
-          title: '名称'
-        },
-        {
-          type: 'InputNumber',
-          col: {
-            span: 8
-          },
-          field: 'price',
-          title: '价格',
-          value: 1,
-          props: {
-            precision: 2
-          }
-        },
-        {
-          type: 'select',
-          field: 'cate_id',
-          col: {
-            span: 8
-          },
-          title: '产品分类',
-          value: ['104', '105'],
-          options: [
-            { value: '104', label: '生态蔬菜', disabled: false },
-            { value: '105', label: '新鲜水果', disabled: false }
-          ],
-          props: {
-            multiple: true
-          }
-        },
-        {
-          type: 'tree',
-          title: '权限',
-          field: 'rule',
-          value: [],
-          props: {
-            data: [{
-              label: '一级 1',
-              children: [{
-                label: '二级 1-1',
-                children: [{
-                  label: '三级 1-1-1'
-                }]
-              }]
-            }, {
-              label: '一级 2',
-              children: [{
-                label: '二级 2-1',
-                children: [{
-                  label: '三级 2-1-1'
-                }]
-              }, {
-                label: '二级 2-2',
-                children: [{
-                  label: '三级 2-2-1'
-                }]
-              }]
-            }, {
-              label: '一级 3',
-              children: [{
-                label: '二级 3-1',
-                children: [{
-                  label: '三级 3-1-1'
-                }]
-              }, {
-                label: '二级 3-2',
-                children: [{
-                  label: '三级 3-2-1'
-                }]
-              }]
-            }],
-            props: {
-              children: 'children',
-              label: 'label'
-            }
-          }
-        },
-        {
-          type: 'cascader',
-          title: '所在区域',
-          field: 'address',
-          value: ['陕西省', '西安市', '新城区'],
-          props: {
-            options: [{
-              value: 'beijing',
-              label: '北京',
-              children: [
-                {
-                  value: 'gugong',
-                  label: '故宫'
-                },
-                {
-                  value: 'tiantan',
-                  label: '天坛'
-                },
-                {
-                  value: 'wangfujing',
-                  label: '王府井'
-                }
-              ]
-            }, {
-              value: 'jiangsu',
-              label: '江苏',
-              children: [
-                {
-                  value: 'nanjing',
-                  label: '南京',
-                  children: [
-                    {
-                      value: 'fuzimiao',
-                      label: '夫子庙'
-                    }
-                  ]
-                },
-                {
-                  value: 'suzhou',
-                  label: '苏州',
-                  children: [
-                    {
-                      value: 'zhuozhengyuan',
-                      label: '拙政园'
-                    },
-                    {
-                      value: 'shizilin',
-                      label: '狮子林'
-                    }
-                  ]
-                }
-              ]
-            }]
-          }
-        },
-        {
-          type: 'switch',
-          title: '是否上架',
-          field: 'is_show',
-          value: '1',
-          props: {
-            activeValue: '1',
-            inactiveValue: '0'
-          }
-        },
-        {
-          type: 'datePicker',
-          field: 'created_at',
-          title: '时间'
-        },
-        {
-          type: 'checkbox',
-          title: '标签',
-          field: 'label',
-          value: ['1', '2', '3'],
-          options: [
-            { value: '1', label: '好用', disabled: true },
-            { value: '2', label: '方便', disabled: false },
-            { value: '3', label: '实用', disabled: false },
-            { value: '4', label: '有效', disabled: false }
-          ]
-        },
-        {
-          type: 'radio',
-          title: '是否展示input',
-          field: ' is_postage',
-          value: 0,
-          options: [
-            { value: 0, label: '不展示', disabled: false },
-            { value: 1, label: '展示', disabled: false }
-          ],
-          control: [
-            {
-              value: 1,
-              rule: [
-                {
-                  type: 'input',
-                  field: 'postage_money',
-                  title: '动态展示的',
-                  value: 0
-                }
-              ]
-            }
-          ]
-        }
-      ],
+      rule: [],
       // 组件参数配置
       option: {
         // 表单提交事件
-        submitBtn: false
+        submitBtn: false,
+        global: {
+          '*': {
+            props: {
+              disabled: false
+            },
+            col: {
+              span: 24
+            }
+          },
+          upload: {
+            props: {
+              onError: function (r) {
+                alert('上传失败')
+              }
+            }
+          }
+        }
       }
     }
   },
   components: {
+  },
+  created () {
+    this.getData()
   },
   methods: {
     submit () {
@@ -234,6 +55,142 @@ export default {
     },
     reset () {
       this.fApi.resetFields()
+    },
+    getData () {
+      axios.post('http://221.226.153.90:18081/app/mock/30/exttype/queryFormStructure/v1', {
+        extTypeCode: 'second'
+      }).then(async res => {
+        // 先把前端需要的字段补齐 获取 type field title value
+        const resData = (res?.data?.data?.rows || []).map(item => ({
+          ...item,
+          type: item.displayType,
+          field: item.fieldName,
+          title: item.fieldDesc,
+          // 数组和字符串转化
+          value: (item.displayType === 'cascader' || item.displayType === 'checkbox') ? item.defaultValue.split(',') : item.defaultValue
+        }))
+
+        // 过滤非hidden字段
+        const rows = resData.filter(item => {
+          // 一般情况只需要过滤 hidden 这里假设 register_time是联动的选项。在初始化的不能显示在根节点
+          return item.displayType !== 'hidden' && item.fieldName !== 'register_time'
+        })
+
+        // 二次组装 需要的额外前端配置  比如 disable require等
+        const tmpArr = []
+        for (let index = 0; index < rows.length; index++) {
+          // 目前的架构下 需要依次判断item手动填入前端配置
+          const element = rows[index]
+          switch (element.fieldName) {
+            // 名称必填校验
+            case 'company_name':
+              element.validate = [{ type: 'string', required: true, message: '请输入名称' }]
+              break
+
+            // 公司类型补全根据字典值下拉框
+            case 'company_type':
+              {
+                const { data: { typeList: selectArr } } = await axios.post('http://221.226.153.90:18081/app/mock/26/test/companyType', {
+                  dictTypeCode: element.dictTypeCode
+                })
+                element.options = selectArr
+              }
+              break
+            // 是否启用如果有需要补全 选中值
+            case 'is_ative':
+              element.value = element.value ? '1' : '0'
+              element.props = {
+                activeValue: '1',
+                inactiveValue: '0'
+              }
+              break
+            // 企业label也可以自定义获取checkbox可选值
+            case 'company_label':
+              {
+                const { data: { typeList: selectArr } } = await axios.post('http://221.226.153.90:18081/app/mock/26/test/companyLabel')
+                element.options = selectArr
+              }
+              break
+            // 企业评级同label
+            case 'company_rate':
+              {
+                const { data: { typeList: selectArr } } = await axios.post('http://221.226.153.90:18081/app/mock/26/test/companyRate')
+                element.options = selectArr
+                // 此处处理动态展示的 后台无法展示层级关系，所以需要单独把数据拼接起来
+                element.control = [
+                  {
+                    value: 4, // 四级企业展示
+                    rule: resData.filter(item => item.fieldName === 'register_time')
+                  }
+                ]
+              }
+              break
+            case 'company_address':
+              // 拼接 组件下拉data值 此处如果是城市选择从 字典服务获取。需要开发人员手动添加城市字典
+              element.props = {
+                options: [{
+                  value: 'beijing',
+                  label: '北京',
+                  children: [
+                    {
+                      value: 'gugong',
+                      label: '故宫'
+                    },
+                    {
+                      value: 'tiantan',
+                      label: '天坛'
+                    },
+                    {
+                      value: 'wangfujing',
+                      label: '王府井'
+                    }
+                  ]
+                }, {
+                  value: 'jiangsu',
+                  label: '江苏',
+                  children: [
+                    {
+                      value: 'nanjing',
+                      label: '南京',
+                      children: [
+                        {
+                          value: 'fuzimiao',
+                          label: '夫子庙'
+                        }
+                      ]
+                    },
+                    {
+                      value: 'suzhou',
+                      label: '苏州',
+                      children: [
+                        {
+                          value: 'zhuozhengyuan',
+                          label: '拙政园'
+                        },
+                        {
+                          value: 'shizilin',
+                          label: '狮子林'
+                        }
+                      ]
+                    }
+                  ]
+                }]
+              }
+              break
+
+            default:
+              break
+          }
+
+          // 数据全部处理完 获取新处理完的数据
+          tmpArr.push(element)
+        }
+
+        this.rule = tmpArr
+        console.log(this.rule)
+        // 渲染表单
+        this.canShowForm = true
+      })
     }
   }
 }

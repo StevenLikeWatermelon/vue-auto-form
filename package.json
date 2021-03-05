@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@form-create/element-ui": "^1.0.20",
+    "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "element-ui": "^2.15.0",
     "vue": "^2.6.11",

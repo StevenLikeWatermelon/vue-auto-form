@@ -6,7 +6,7 @@ import App from './App.vue'
 import locationMap from './components/mapForm.vue'
 import store from './store'
 import formCreate from './dist/form-xl.umd.js'
-formCreate.component('location-map', locationMap)
+formCreate.component('locationMap', locationMap)
 
 Vue.use(XlViews)
 Vue.use(formCreate)

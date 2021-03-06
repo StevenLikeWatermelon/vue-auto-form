@@ -22,6 +22,10 @@ export default {
       option: {
         // 表单提交事件
         submitBtn: false,
+        // 表单ui
+        form: {
+          labelWidth: '150px'
+        },
         global: {
           '*': {
             props: {
@@ -56,19 +60,35 @@ export default {
     reset () {
       this.fApi.resetFields()
     },
+    translateData (item) {
+      const arrTypeFormItem = ['checkbox', 'cascader', 'selectTree']
+      const itemFormatter = {}
+      if (arrTypeFormItem.includes(item.displayType)) {
+        itemFormatter.value = item.defaultValue ? item.defaultValue.split(',') : []
+        itemFormatter.type = 'array'
+      } else {
+        itemFormatter.value = item.defaultValue
+        itemFormatter.type = 'string'
+      }
+      return itemFormatter
+    },
     getData () {
       axios.post('http://221.226.153.90:18081/app/mock/30/exttype/queryFormStructure/v1', {
         extTypeCode: 'second'
       }).then(async res => {
         // 先把前端需要的字段补齐 获取 type field title value
-        const resData = (res?.data?.data?.rows || []).map(item => ({
-          ...item,
-          type: item.displayType,
-          field: item.fieldName,
-          title: item.fieldDesc,
-          // 数组和字符串转化
-          value: (item.displayType === 'cascader' || item.displayType === 'checkbox') ? item.defaultValue.split(',') : item.defaultValue
-        }))
+        const resData = (res?.data?.data?.rows || []).map(item => {
+          const itemFormatter = this.translateData(item)
+          return {
+            ...item,
+            type: item.displayType,
+            field: item.fieldName,
+            title: item.fieldDesc,
+            // 数组和字符串转化
+            value: itemFormatter.value,
+            validate: [{ type: itemFormatter.type, required: true, message: `${item.fieldDesc}必填` }]
+          }
+        })
 
         // 过滤非hidden字段
         const rows = resData.filter(item => {
@@ -82,13 +102,14 @@ export default {
           // 目前的架构下 需要依次判断item手动填入前端配置
           const element = rows[index]
           switch (element.fieldName) {
-            // 名称必填校验
-            case 'company_name':
-              element.validate = [{ type: 'string', required: true, message: '请输入名称' }]
+            // 企业id 禁用
+            case 'company_id':
+              // id字段 禁用
+              element.disabled = true
               break
 
-            // 公司类型补全根据字典值下拉框
-            case 'company_type':
+            // 运用公司 补全下拉框
+            case 'company_operator':
               {
                 const { data: { typeList: selectArr } } = await axios.post('http://221.226.153.90:18081/app/mock/26/test/companyType', {
                   dictTypeCode: element.dictTypeCode
@@ -96,35 +117,91 @@ export default {
                 element.options = selectArr
               }
               break
-            // 是否启用如果有需要补全 选中值
-            case 'is_ative':
-              element.value = element.value ? '1' : '0'
+
+            // 所属机构 补全下拉框
+            case 'affiliated_institutions':
               element.props = {
-                activeValue: '1',
-                inactiveValue: '0'
+                data: [{
+                  label: '一级 1',
+                  id: 1111111,
+                  children: [{
+                    id: 12,
+                    label: '二级 1-1',
+                    children: [{
+                      id: 1223,
+                      label: '三级 1-1-1'
+                    }, {
+                      id: 1223111,
+                      label: '三级 1-1-21221一级 1221一级'
+                    }]
+                  }]
+                }, {
+                  label: '一级 2',
+                  id: 13,
+                  children: [{
+                    id: 12235,
+                    label: '二级 2-1',
+                    children: [{
+                      id: 12234,
+                      label: '三级 2-1-1'
+                    }]
+                  }, {
+                    id: 122345,
+                    label: '二级 2-2',
+                    children: [{
+                      id: 12237,
+                      label: '三级 2-2-1'
+                    }]
+                  }]
+                }, {
+                  id: 12238,
+                  label: '一级 3',
+                  children: [{
+                    id: 12239,
+                    label: '二级 3-1',
+                    children: [{
+                      id: 122310,
+                      label: '三级 3-1-1'
+                    }]
+                  }, {
+                    id: 122311,
+                    label: '二级 3-2',
+                    children: [{
+                      id: 122312,
+                      label: '三级 3-2-1'
+                    }]
+                  }]
+                }],
+                multiple: true,
+                nodeKey: 'id',
+                defaultProps: {
+                  children: 'children',
+                  label: 'label'
+                }
               }
               break
-            // 企业label也可以自定义获取checkbox可选值
-            case 'company_label':
+
+            // 统计分类 补全下拉框
+            case 'computed_type':
               {
-                const { data: { typeList: selectArr } } = await axios.post('http://221.226.153.90:18081/app/mock/26/test/companyLabel')
+                const { data: { typeList: selectArr } } = await axios.post('http://221.226.153.90:18081/app/mock/26/test/computedype', {
+                  dictTypeCode: element.dictTypeCode
+                })
                 element.options = selectArr
               }
               break
-            // 企业评级同label
-            case 'company_rate':
+
+            // 国民经济行业 补全下拉框
+            case 'economic_industry':
               {
-                const { data: { typeList: selectArr } } = await axios.post('http://221.226.153.90:18081/app/mock/26/test/companyRate')
+                const { data: { typeList: selectArr } } = await axios.post('http://221.226.153.90:18081/app/mock/26/test/economicndustry', {
+                  dictTypeCode: element.dictTypeCode
+                })
                 element.options = selectArr
-                // 此处处理动态展示的 后台无法展示层级关系，所以需要单独把数据拼接起来
-                element.control = [
-                  {
-                    value: 4, // 四级企业展示
-                    rule: resData.filter(item => item.fieldName === 'register_time')
-                  }
-                ]
               }
               break
+
+            // 行政区域
             case 'company_address':
               // 拼接 组件下拉data值 此处如果是城市选择从 字典服务获取。需要开发人员手动添加城市字典
               element.props = {
@@ -175,6 +252,54 @@ export default {
                     }
                   ]
                 }]
+              }
+              break
+
+            // 图表上传配置
+            case 'company_icon':
+              {
+                const domain = 'http://localhost:3000'
+                // id字段 禁用
+                element.props = {
+                  action: `${domain}/upload/single`,
+                  uploadType: 'image',
+                  multiple: false,
+                  onSuccess: function (res, file) {
+                    file.url = `${domain}${res.path}`
+                    console.log(file.url)
+                  }
+
+                }
+              }
+              break
+
+            // 是否启用如果有需要补全 选中值
+            case 'is_ative':
+              element.value = element.value ? '1' : '0'
+              element.props = {
+                activeValue: '1',
+                inactiveValue: '0'
+              }
+              break
+            // 企业label也可以自定义获取checkbox可选值
+            case 'company_label':
+              {
+                const { data: { typeList: selectArr } } = await axios.post('http://221.226.153.90:18081/app/mock/26/test/companyLabel')
+                element.options = selectArr
+              }
+              break
+            // 企业评级同label
+            case 'company_rate':
+              {
+                const { data: { typeList: selectArr } } = await axios.post('http://221.226.153.90:18081/app/mock/26/test/companyRate')
+                element.options = selectArr
+                // 此处处理动态展示的 后台无法展示层级关系，所以需要单独把数据拼接起来
+                element.control = [
+                  {
+                    value: 4, // 四级企业展示
+                    rule: resData.filter(item => item.fieldName === 'register_time')
+                  }
+                ]
               }
               break
 

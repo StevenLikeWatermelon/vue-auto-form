@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /*!
  * xl-form-create v1.0.22
  * (c) 2018-2021 stevenLikeWatermelon
@@ -1194,7 +1196,7 @@
         }).filter(function (url) {
           return url !== undefined;
         });
-        this.$emit('input', this.maxLength === 1 ? files[0] || '' : files);
+        this.$emit('input', files);
       },
       handleCancel: function handleCancel() {
         this.previewVisible = false;
@@ -2712,6 +2714,7 @@
         });
       },
       validateField: function validateField(field, callback) {
+        console.log(2);
         if (!h.fieldList[field]) return;
         h.$form.validateField(field, callback);
       },
@@ -4667,6 +4670,7 @@
     }, {
       key: "validateField",
       value: function validateField(field, call) {
+        console.log(1);
         this.getFormRef().validateField(field, call);
       }
     }, {

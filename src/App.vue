@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div id="app1">
-      <form-create v-model="fApi" :rule="rule" :option="option" v-if="canShowForm"></form-create>
+      <form-create v-model="fApi" :rule="rule" :option="option" v-if="canShowForm" @change="changeValue"></form-create>
        <xl-button type="primary" plain @click="submit">提交</xl-button>
       <xl-button aligen="center" plain @click="reset">重置</xl-button>
     </div>
@@ -56,6 +56,9 @@ export default {
       this.fApi.submit((formData, $f) => {
         alert(JSON.stringify(formData))
       })
+    },
+    changeValue (value) {
+      this.fApi.validateField(value)
     },
     reset () {
       this.fApi.resetFields()

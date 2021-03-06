@@ -61,7 +61,7 @@ export default {
       this.fApi.resetFields()
     },
     translateData (item) {
-      const arrTypeFormItem = ['checkbox', 'cascader', 'selectTree']
+      const arrTypeFormItem = ['checkbox', 'cascader', 'selectTree', 'upload']
       const itemFormatter = {}
       if (arrTypeFormItem.includes(item.displayType)) {
         itemFormatter.value = item.defaultValue ? item.defaultValue.split(',') : []
@@ -105,7 +105,9 @@ export default {
             // 企业id 禁用
             case 'company_id':
               // id字段 禁用
-              element.disabled = true
+              element.props = {
+                disabled: true
+              }
               break
 
             // 运用公司 补全下拉框
@@ -263,12 +265,12 @@ export default {
                 element.props = {
                   action: `${domain}/upload/single`,
                   uploadType: 'image',
+                  limit: 1,
                   multiple: false,
                   onSuccess: function (res, file) {
                     file.url = `${domain}${res.path}`
                     console.log(file.url)
                   }
-
                 }
               }
               break
@@ -296,7 +298,7 @@ export default {
                 // 此处处理动态展示的 后台无法展示层级关系，所以需要单独把数据拼接起来
                 element.control = [
                   {
-                    value: 4, // 四级企业展示
+                    value: '4', // 四级企业展示
                     rule: resData.filter(item => item.fieldName === 'register_time')
                   }
                 ]

@@ -260,6 +260,14 @@ export default {
               }
               break
 
+              // 行政区域
+              // case 'company_location':
+              //   // 拼接 组件下拉data值 此处如果是城市选择从 字典服务获取。需要开发人员手动添加城市字典
+              //   element.col = {
+              //     span: 24
+              //   }
+              //   break
+
             // 图表上传配置
             case 'company_icon':
               {

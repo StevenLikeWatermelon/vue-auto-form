@@ -5,7 +5,7 @@ import 'xl-views/dist/xl-views.css'
 import App from './App.vue'
 import locationMap from './components/mapForm.vue'
 import store from './store'
-import formCreate from './dist/form-create.min.js'
+import formCreate from 'xl-form-create'
 formCreate.component('locationMap', locationMap)
 formCreate.component('selectTree', XlSelectTree)
 
